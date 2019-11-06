@@ -62,8 +62,8 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
   };
 
   function PartialEvaluator({ xref, handler, pageIndex, idFactory, fontCache,
-                              builtInCMapCache, options = null,
-                              pdfFunctionFactory, }) {
+    builtInCMapCache, options = null,
+    pdfFunctionFactory, }) {
     this.xref = xref;
     this.handler = handler;
     this.pageIndex = pageIndex;
@@ -79,7 +79,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         return this.builtInCMapCache.get(name);
       }
       const data = await this.handler.sendWithPromise('FetchBuiltInCMap',
-                                                      { name, });
+        { name, });
       if (data.compressionType !== CMapCompressionType.NONE) {
         // Given the size of uncompressed CMaps, only cache compressed ones.
         this.builtInCMapCache.set(name, data);
@@ -223,7 +223,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           var xResources = xObject.dict.get('Resources');
           // Checking objId to detect an infinite loop.
           if (isDict(xResources) &&
-              (!xResources.objId || !processed[xResources.objId])) {
+            (!xResources.objId || !processed[xResources.objId])) {
             nodes.push(xResources);
             if (xResources.objId) {
               processed[xResources.objId] = true;
@@ -235,10 +235,10 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     buildFormXObject: function PartialEvaluator_buildFormXObject(resources,
-                                                                 xobj, smask,
-                                                                 operatorList,
-                                                                 task,
-                                                                 initialState) {
+      xobj, smask,
+      operatorList,
+      task,
+      initialState) {
       var dict = xobj.dict;
       var matrix = dict.getArray('Matrix');
       var bbox = dict.getArray('BBox');
@@ -264,7 +264,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           groupOptions.knockout = (group.get('K') || false);
           if (group.has('CS')) {
             colorSpace = ColorSpace.parse(group.get('CS'), this.xref, resources,
-                                          this.pdfFunctionFactory);
+              this.pdfFunctionFactory);
           }
         }
 
@@ -294,8 +294,8 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     async buildPaintImageXObject({ resources, image, isInline = false,
-                                   operatorList, cacheKey, imageCache,
-                                   forceDisableNativeImageDecoder = false, }) {
+      operatorList, cacheKey, imageCache,
+      forceDisableNativeImageDecoder = false, }) {
       var dict = image.dict;
       var w = dict.get('Width', 'W');
       var h = dict.get('Height', 'H');
@@ -352,7 +352,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       var SMALL_IMAGE_DIMENSIONS = 200;
       // Inlining small images into the queue as RGB data
       if (isInline && !softMask && !mask && !(image instanceof JpegStream) &&
-          (w + h) < SMALL_IMAGE_DIMENSIONS) {
+        (w + h) < SMALL_IMAGE_DIMENSIONS) {
         let imageObj = new PDFImage({
           xref: this.xref,
           res: resources,
@@ -381,14 +381,14 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       }
 
       if (nativeImageDecoderSupport !== NativeImageDecoding.NONE &&
-          !softMask && !mask && image instanceof JpegStream &&
-          NativeImageDecoder.isSupported(image, this.xref, resources,
-                                         this.pdfFunctionFactory)) {
+        !softMask && !mask && image instanceof JpegStream &&
+        NativeImageDecoder.isSupported(image, this.xref, resources,
+          this.pdfFunctionFactory)) {
         // These JPEGs don't need any more processing so we can just send it.
         return this.handler.sendWithPromise('obj', [
           objId, this.pageIndex, 'JpegStream',
           image.getIR(this.options.forceDataSchema)
-        ]).then(function() {
+        ]).then(function () {
           // Only add the dependency once we know that the native JPEG decoding
           // succeeded, to ensure that rendering will always complete.
           operatorList.addDependency(objId);
@@ -403,7 +403,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           }
         }, (reason) => {
           warn('Native JPEG decoding failed -- trying to recover: ' +
-               (reason && reason.message));
+            (reason && reason.message));
           // Try to decode the JPEG image with the built-in decoder instead.
           return this.buildPaintImageXObject({
             resources,
@@ -420,8 +420,8 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       // Creates native image decoder only if a JPEG image or mask is present.
       var nativeImageDecoder = null;
       if (nativeImageDecoderSupport === NativeImageDecoding.DECODE &&
-          (image instanceof JpegStream || mask instanceof JpegStream ||
-           softMask instanceof JpegStream)) {
+        (image instanceof JpegStream || mask instanceof JpegStream ||
+          softMask instanceof JpegStream)) {
         nativeImageDecoder = new NativeImageDecoder({
           xref: this.xref,
           resources,
@@ -458,7 +458,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
 
         if (this.parsingType3Font) {
           return this.handler.sendWithPromise('commonobj',
-                                              [objId, 'FontType3Res', null]);
+            [objId, 'FontType3Res', null]);
         }
         this.handler.send('obj', [objId, this.pageIndex, 'Image', null]);
         return undefined;
@@ -482,8 +482,8 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     handleSMask: function PartialEvaluator_handleSmask(smask, resources,
-                                                       operatorList, task,
-                                                       stateManager) {
+      operatorList, task,
+      stateManager) {
       var smaskContent = smask.get('G');
       var smaskOptions = {
         subtype: smask.get('S').name,
@@ -506,12 +506,12 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       }
 
       return this.buildFormXObject(resources, smaskContent, smaskOptions,
-                                   operatorList, task,
-                                   stateManager.state.clone());
+        operatorList, task,
+        stateManager.state.clone());
     },
 
     handleTilingType(fn, args, resources, pattern, patternDict, operatorList,
-                     task) {
+      task) {
       // Create an IR of the pattern code.
       let tilingOpList = new OperatorList();
       // Merge the available resources, to prevent issues when the patternDict
@@ -524,12 +524,12 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         task,
         resources: patternResources,
         operatorList: tilingOpList,
-      }).then(function() {
+      }).then(function () {
         return getTilingPatternIR({
           fnArray: tilingOpList.fnArray,
           argsArray: tilingOpList.argsArray,
         }, patternDict, args);
-      }).then(function(tilingPatternIR) {
+      }).then(function (tilingPatternIR) {
         // Add the dependencies to the parent operator list so they are
         // resolved before the sub operator list is executed synchronously.
         operatorList.addDependencies(tilingOpList.dependencies);
@@ -539,7 +539,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           // Error(s) in the TilingPattern -- sending unsupported feature
           // notification and allow rendering to continue.
           this.handler.send('UnsupportedFeature',
-                            { featureId: UNSUPPORTED_FEATURES.unknown, });
+            { featureId: UNSUPPORTED_FEATURES.unknown, });
           warn(`handleTilingType - ignoring pattern: "${reason}".`);
           return;
         }
@@ -548,35 +548,35 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     handleSetFont:
-        function PartialEvaluator_handleSetFont(resources, fontArgs, fontRef,
-                                                operatorList, task, state) {
-      // TODO(mack): Not needed?
-      var fontName;
-      if (fontArgs) {
-        fontArgs = fontArgs.slice();
-        fontName = fontArgs[0].name;
-      }
-
-      return this.loadFont(fontName, fontRef, resources).then((translated) => {
-        if (!translated.font.isType3Font) {
-          return translated;
+      function PartialEvaluator_handleSetFont(resources, fontArgs, fontRef,
+        operatorList, task, state) {
+        // TODO(mack): Not needed?
+        var fontName;
+        if (fontArgs) {
+          fontArgs = fontArgs.slice();
+          fontName = fontArgs[0].name;
         }
-        return translated.loadType3Data(this, resources, operatorList, task).
-          then(function () {
-          return translated;
-        }).catch((reason) => {
-          // Error in the font data -- sending unsupported feature notification.
-          this.handler.send('UnsupportedFeature',
-                            { featureId: UNSUPPORTED_FEATURES.font, });
-          return new TranslatedFont('g_font_error',
-            new ErrorFont('Type3 font load error: ' + reason), translated.font);
+
+        return this.loadFont(fontName, fontRef, resources).then((translated) => {
+          if (!translated.font.isType3Font) {
+            return translated;
+          }
+          return translated.loadType3Data(this, resources, operatorList, task).
+            then(function () {
+              return translated;
+            }).catch((reason) => {
+              // Error in the font data -- sending unsupported feature notification.
+              this.handler.send('UnsupportedFeature',
+                { featureId: UNSUPPORTED_FEATURES.font, });
+              return new TranslatedFont('g_font_error',
+                new ErrorFont('Type3 font load error: ' + reason), translated.font);
+            });
+        }).then((translated) => {
+          state.font = translated.font;
+          translated.send(this.handler);
+          return translated.loadedName;
         });
-      }).then((translated) => {
-        state.font = translated.font;
-        translated.send(this.handler);
-        return translated.loadedName;
-      });
-    },
+      },
 
     handleText(chars, state) {
       const font = state.font;
@@ -584,9 +584,9 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
 
       if (font.data) {
         const isAddToPathSet = !!(state.textRenderingMode &
-                                  TextRenderingMode.ADD_TO_PATH_FLAG);
+          TextRenderingMode.ADD_TO_PATH_FLAG);
         if (isAddToPathSet || state.fillColorSpace.name === 'Pattern' ||
-            font.disableFontFace || this.options.disableFontFace) {
+          font.disableFontFace || this.options.disableFontFace) {
           PartialEvaluator.buildFontPaths(font, glyphs, this.handler);
         }
       }
@@ -594,8 +594,8 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     setGState: function PartialEvaluator_setGState(resources, gState,
-                                                   operatorList, task,
-                                                   stateManager) {
+      operatorList, task,
+      stateManager) {
       // This array holds the converted/processed state data.
       var gStateObj = [];
       var gStateKeys = gState.getKeys();
@@ -620,7 +620,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           case 'Font':
             promise = promise.then(() => {
               return this.handleSetFont(resources, null, value[0], operatorList,
-                                        task, stateManager.state).
+                task, stateManager.state).
                 then(function (loadedName) {
                   operatorList.addDependency(loadedName);
                   gStateObj.push([key, [loadedName, value[1]]]);
@@ -638,7 +638,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
             if (isDict(value)) {
               promise = promise.then(() => {
                 return this.handleSMask(value, resources, operatorList,
-                                        task, stateManager);
+                  task, stateManager);
               });
               gStateObj.push([key, true]);
             } else {
@@ -737,7 +737,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         if (fontAliases[hash]) {
           var aliasFontRef = fontAliases[hash].aliasRef;
           if (fontRefIsRef && aliasFontRef &&
-              this.fontCache.has(aliasFontRef)) {
+            this.fontCache.has(aliasFontRef)) {
             this.fontCache.putAlias(fontRef, aliasFontRef);
             return this.fontCache.get(fontRef);
           }
@@ -806,14 +806,14 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         // TODO fontCapability.reject?
         // Error in the font data -- sending unsupported feature notification.
         this.handler.send('UnsupportedFeature',
-                          { featureId: UNSUPPORTED_FEATURES.font, });
+          { featureId: UNSUPPORTED_FEATURES.font, });
 
         try {
           // error, but it's still nice to have font type reported
           var fontFile3 = descriptor && descriptor.get('FontFile3');
           var subtype = fontFile3 && fontFile3.get('Subtype');
           var fontType = getFontType(preEvaluatedFont.type,
-                                     subtype && subtype.name);
+            subtype && subtype.name);
           var xrefFontStats = xref.stats.fontTypes;
           xrefFontStats[fontType] = true;
         } catch (ex) { }
@@ -831,7 +831,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         args = [];
       }
       if (lastIndex < 0 ||
-          operatorList.fnArray[lastIndex] !== OPS.constructPath) {
+        operatorList.fnArray[lastIndex] !== OPS.constructPath) {
         // Handle corrupt PDF documents that contains path operators inside of
         // text objects, which may shift subsequent text, by enclosing the path
         // operator in save/restore operators (fixes issue10542_reduced.pdf).
@@ -862,19 +862,19 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       // SCN/scn applies patterns along with normal colors
       var pattern;
       if (isName(patternName) &&
-          (pattern = patterns.get(patternName.name))) {
+        (pattern = patterns.get(patternName.name))) {
         var dict = (isStream(pattern) ? pattern.dict : pattern);
         var typeNum = dict.get('PatternType');
 
         if (typeNum === TILING_PATTERN) {
           var color = cs.base ? cs.base.getRgb(args, 0) : null;
           return this.handleTilingType(fn, color, resources, pattern,
-                                       dict, operatorList, task);
+            dict, operatorList, task);
         } else if (typeNum === SHADING_PATTERN) {
           var shading = dict.get('Shading');
           var matrix = dict.getArray('Matrix');
           pattern = Pattern.parseShading(shading, matrix, this.xref, resources,
-                                         this.handler, this.pdfFunctionFactory);
+            this.handler, this.pdfFunctionFactory);
           operatorList.addOp(fn, pattern.getIR());
           return undefined;
         }
@@ -884,7 +884,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     getOperatorList({ stream, task, resources, operatorList,
-                      initialState = null, }) {
+      initialState = null, }) {
       // Ensure that `resources`/`initialState` is correctly initialized,
       // even if the provided parameter is e.g. `null`.
       resources = resources || Dict.empty;
@@ -946,7 +946,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                 continue;
               }
 
-              next(new Promise(function(resolveXObject, rejectXObject) {
+              next(new Promise(function (resolveXObject, rejectXObject) {
                 if (!name) {
                   throw new FormatError('XObject must be referred to by name.');
                 }
@@ -969,8 +969,8 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                 if (type.name === 'Form') {
                   stateManager.save();
                   self.buildFormXObject(resources, xobj, null, operatorList,
-                                        task, stateManager.state.clone()).
-                    then(function() {
+                    task, stateManager.state.clone()).
+                    then(function () {
                       stateManager.restore();
                       resolveXObject();
                     }, rejectXObject);
@@ -993,7 +993,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                     `Unhandled XObject subtype ${type.name}`);
                 }
                 resolveXObject();
-              }).catch(function(reason) {
+              }).catch(function (reason) {
                 if (self.options.ignoreErrors) {
                   // Error(s) in the XObject -- sending unsupported feature
                   // notification and allow rendering to continue.
@@ -1009,7 +1009,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               var fontSize = args[1];
               // eagerly collect all fonts
               next(self.handleSetFont(resources, args, null, operatorList,
-                                      task, stateManager.state).
+                task, stateManager.state).
                 then(function (loadedName) {
                   operatorList.addDependency(loadedName);
                   operatorList.addOp(OPS.setFont, [loadedName, fontSize]);
@@ -1079,12 +1079,12 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
             case OPS.setFillColorSpace:
               stateManager.state.fillColorSpace =
                 ColorSpace.parse(args[0], xref, resources,
-                                 self.pdfFunctionFactory);
+                  self.pdfFunctionFactory);
               continue;
             case OPS.setStrokeColorSpace:
               stateManager.state.strokeColorSpace =
                 ColorSpace.parse(args[0], xref, resources,
-                                 self.pdfFunctionFactory);
+                  self.pdfFunctionFactory);
               continue;
             case OPS.setFillColor:
               cs = stateManager.state.fillColorSpace;
@@ -1128,7 +1128,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               cs = stateManager.state.fillColorSpace;
               if (cs.name === 'Pattern') {
                 next(self.handleColorN(operatorList, OPS.setFillColorN, args,
-                                       cs, patterns, resources, task));
+                  cs, patterns, resources, task));
                 return;
               }
               args = cs.getRgb(args, 0);
@@ -1138,7 +1138,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               cs = stateManager.state.strokeColorSpace;
               if (cs.name === 'Pattern') {
                 next(self.handleColorN(operatorList, OPS.setStrokeColorN, args,
-                                       cs, patterns, resources, task));
+                  cs, patterns, resources, task));
                 return;
               }
               args = cs.getRgb(args, 0);
@@ -1172,7 +1172,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
 
               var gState = extGState.get(dictName.name);
               next(self.setGState(resources, gState, operatorList, task,
-                                  stateManager));
+                stateManager));
               return;
             case OPS.moveTo:
             case OPS.lineTo:
@@ -1228,9 +1228,9 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           // Error(s) in the OperatorList -- sending unsupported feature
           // notification and allow rendering to continue.
           this.handler.send('UnsupportedFeature',
-                            { featureId: UNSUPPORTED_FEATURES.unknown, });
+            { featureId: UNSUPPORTED_FEATURES.unknown, });
           warn(`getOperatorList - ignoring errors during "${task.name}" ` +
-               `task: "${reason}".`);
+            `task: "${reason}".`);
 
           closePendingRestoreOPS();
           return;
@@ -1240,8 +1240,8 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     getTextContent({ stream, task, resources, stateManager = null,
-                     normalizeWhitespace = false, combineTextItems = false,
-                     sink, seenStyles = Object.create(null), }) {
+      normalizeWhitespace = false, combineTextItems = false,
+      sink, seenStyles = Object.create(null), }) {
       // Ensure that `resources`/`stateManager` is correctly initialized,
       // even if the provided parameter is e.g. `null`.
       resources = resources || Dict.empty;
@@ -1289,6 +1289,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         if (textContentItem.initialized) {
           return textContentItem;
         }
+        textContentItem.containSpace = false;
         var font = textState.font;
         if (!(font.loadedName in seenStyles)) {
           seenStyles[font.loadedName] = true;
@@ -1303,11 +1304,11 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
 
         // 9.4.4 Text Space Details
         var tsm = [textState.fontSize * textState.textHScale, 0,
-                   0, textState.fontSize,
-                   0, textState.textRise];
+          0, textState.fontSize,
+          0, textState.textRise];
 
         if (font.isType3Font && textState.fontSize <= 1 &&
-            !isArrayEqual(textState.fontMatrix, FONT_IDENTITY_MATRIX)) {
+          !isArrayEqual(textState.fontMatrix, FONT_IDENTITY_MATRIX)) {
           const glyphHeight = font.bbox[3] - font.bbox[1];
           if (glyphHeight > 0) {
             tsm[3] *= (glyphHeight * textState.fontMatrix[3]);
@@ -1315,7 +1316,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         }
 
         var trm = Util.transform(textState.ctm,
-                                 Util.transform(textState.textMatrix, tsm));
+          Util.transform(textState.textMatrix, tsm));
         textContentItem.transform = trm;
         if (!font.vertical) {
           textContentItem.width = 0;
@@ -1374,7 +1375,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         var bidiResult = bidi(str, -1, textChunk.vertical);
         return {
           str: (normalizeWhitespace ? replaceWhitespace(bidiResult.str) :
-                                      bidiResult.str),
+            bidiResult.str),
           dir: bidiResult.dir,
           width: textChunk.width,
           height: textChunk.height,
@@ -1395,6 +1396,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       function buildTextContentItem(chars) {
         var font = textState.font;
         var textChunk = ensureTextContentItem();
+
         var width = 0;
         var height = 0;
         var glyphs = font.charsToGlyphs(chars);
@@ -1428,7 +1430,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           if (!font.vertical) {
             var w0 = glyphWidth * textState.fontMatrix[0];
             tx = (w0 * textState.fontSize + charSpacing) *
-                 textState.textHScale;
+              textState.textHScale;
             width += tx;
           } else {
             var w1 = glyphWidth * textState.fontMatrix[0];
@@ -1438,6 +1440,11 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           textState.translateTextMatrix(tx, ty);
 
           textChunk.str.push(glyphUnicode);
+
+          if (glyphUnicode === ' ') {
+            textChunk.containSpace = true;
+          }
+
         }
 
         if (!font.vertical) {
@@ -1452,6 +1459,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       }
 
       function addFakeSpaces(width, strBuf) {
+        debugger
         if (width < textContentItem.fakeSpaceMin) {
           return;
         }
@@ -1526,7 +1534,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               // Optimization to ignore multiple identical Tf commands.
               var fontNameArg = args[0].name, fontSizeArg = args[1];
               if (textState.font && fontNameArg === textState.fontName &&
-                  fontSizeArg === textState.fontSize) {
+                fontSizeArg === textState.fontSize) {
                 break;
               }
 
@@ -1553,16 +1561,16 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                 ((textState.font.vertical ? args[0] : args[1]) === 0);
               advance = args[0] - args[1];
               if (combineTextItems &&
-                  isSameTextLine && textContentItem.initialized &&
-                  advance > 0 &&
-                  advance <= textContentItem.fakeMultiSpaceMax) {
+                isSameTextLine && textContentItem.initialized &&
+                advance > 0 &&
+                advance <= textContentItem.fakeMultiSpaceMax) {
                 textState.translateTextLineMatrix(args[0], args[1]);
                 textContentItem.width +=
                   (args[0] - textContentItem.lastAdvanceWidth);
                 textContentItem.height +=
                   (args[1] - textContentItem.lastAdvanceHeight);
                 diff = (args[0] - textContentItem.lastAdvanceWidth) -
-                       (args[1] - textContentItem.lastAdvanceHeight);
+                  (args[1] - textContentItem.lastAdvanceHeight);
                 addFakeSpaces(diff, textContentItem.str);
                 break;
               }
@@ -1586,17 +1594,17 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               advance = textState.calcTextLineMatrixAdvance(
                 args[0], args[1], args[2], args[3], args[4], args[5]);
               if (combineTextItems &&
-                  advance !== null && textContentItem.initialized &&
-                  advance.value > 0 &&
-                  advance.value <= textContentItem.fakeMultiSpaceMax) {
+                advance !== null && textContentItem.initialized &&
+                advance.value > 0 &&
+                advance.value <= textContentItem.fakeMultiSpaceMax) {
                 textState.translateTextLineMatrix(advance.width,
-                                                  advance.height);
+                  advance.height);
                 textContentItem.width +=
                   (advance.width - textContentItem.lastAdvanceWidth);
                 textContentItem.height +=
                   (advance.height - textContentItem.lastAdvanceHeight);
                 diff = (advance.width - textContentItem.lastAdvanceWidth) -
-                       (advance.height - textContentItem.lastAdvanceHeight);
+                  (advance.height - textContentItem.lastAdvanceHeight);
                 addFakeSpaces(diff, textContentItem.str);
                 break;
               }
@@ -1624,6 +1632,9 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               for (var j = 0, jj = items.length; j < jj; j++) {
                 if (typeof items[j] === 'string') {
                   buildTextContentItem(items[j]);
+                  if (textContentItem.containSpace) {
+                    flushTextContentItem();
+                  }
                 } else if (isNum(items[j])) {
                   ensureTextContentItem();
 
@@ -1641,7 +1652,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                     offset = advance;
                     textState.translateTextMatrix(0, offset);
                     breakTextRun = textContentItem.textRunBreakAllowed &&
-                                   advance > textContentItem.fakeMultiSpaceMax;
+                      advance > textContentItem.fakeMultiSpaceMax;
                     if (!breakTextRun) {
                       // Value needs to be added to height to paint down.
                       textContentItem.height += offset;
@@ -1651,7 +1662,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                     offset = advance * textState.textHScale;
                     textState.translateTextMatrix(offset, 0);
                     breakTextRun = textContentItem.textRunBreakAllowed &&
-                                   advance > textContentItem.fakeMultiSpaceMax;
+                      advance > textContentItem.fakeMultiSpaceMax;
                     if (!breakTextRun) {
                       // Value needs to be subtracted from width to paint left.
                       textContentItem.width += offset;
@@ -1661,6 +1672,10 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                     flushTextContentItem();
                   } else if (advance > 0) {
                     addFakeSpaces(advance, textContentItem.str);
+                  }
+
+                  if (textContentItem.containSpace) {
+                    flushTextContentItem();
                   }
                 }
               }
@@ -1691,7 +1706,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                 break;
               }
 
-              next(new Promise(function(resolveXObject, rejectXObject) {
+              next(new Promise(function (resolveXObject, rejectXObject) {
                 if (!name) {
                   throw new FormatError('XObject must be referred to by name.');
                 }
@@ -1757,13 +1772,13 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                   combineTextItems,
                   sink: sinkWrapper,
                   seenStyles,
-                }).then(function() {
+                }).then(function () {
                   if (!sinkWrapper.enqueueInvoked) {
                     skipEmptyXObjs[name] = true;
                   }
                   resolveXObject();
                 }, rejectXObject);
-              }).catch(function(reason) {
+              }).catch(function (reason) {
                 if (reason instanceof AbortException) {
                   return;
                 }
@@ -1817,7 +1832,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         if (this.options.ignoreErrors) {
           // Error(s) in the TextContent -- allow text-extraction to continue.
           warn(`getTextContent - ignoring errors during "${task.name}" ` +
-               `task: "${reason}".`);
+            `task: "${reason}".`);
 
           flushTextContentItem();
           enqueueChunk();
@@ -1828,119 +1843,119 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     extractDataStructures:
-        function PartialEvaluator_extractDataStructures(dict, baseDict,
-                                                        properties) {
-      let xref = this.xref, cidToGidBytes;
-      // 9.10.2
-      var toUnicode = (dict.get('ToUnicode') || baseDict.get('ToUnicode'));
-      var toUnicodePromise = toUnicode ?
-        this.readToUnicode(toUnicode) : Promise.resolve(undefined);
+      function PartialEvaluator_extractDataStructures(dict, baseDict,
+        properties) {
+        let xref = this.xref, cidToGidBytes;
+        // 9.10.2
+        var toUnicode = (dict.get('ToUnicode') || baseDict.get('ToUnicode'));
+        var toUnicodePromise = toUnicode ?
+          this.readToUnicode(toUnicode) : Promise.resolve(undefined);
 
-      if (properties.composite) {
-        // CIDSystemInfo helps to match CID to glyphs
-        var cidSystemInfo = dict.get('CIDSystemInfo');
-        if (isDict(cidSystemInfo)) {
-          properties.cidSystemInfo = {
-            registry: stringToPDFString(cidSystemInfo.get('Registry')),
-            ordering: stringToPDFString(cidSystemInfo.get('Ordering')),
-            supplement: cidSystemInfo.get('Supplement'),
-          };
+        if (properties.composite) {
+          // CIDSystemInfo helps to match CID to glyphs
+          var cidSystemInfo = dict.get('CIDSystemInfo');
+          if (isDict(cidSystemInfo)) {
+            properties.cidSystemInfo = {
+              registry: stringToPDFString(cidSystemInfo.get('Registry')),
+              ordering: stringToPDFString(cidSystemInfo.get('Ordering')),
+              supplement: cidSystemInfo.get('Supplement'),
+            };
+          }
+
+          var cidToGidMap = dict.get('CIDToGIDMap');
+          if (isStream(cidToGidMap)) {
+            cidToGidBytes = cidToGidMap.getBytes();
+          }
         }
 
-        var cidToGidMap = dict.get('CIDToGIDMap');
-        if (isStream(cidToGidMap)) {
-          cidToGidBytes = cidToGidMap.getBytes();
+        // Based on 9.6.6 of the spec the encoding can come from multiple places
+        // and depends on the font type. The base encoding and differences are
+        // read here, but the encoding that is actually used is chosen during
+        // glyph mapping in the font.
+        // TODO: Loading the built in encoding in the font would allow the
+        // differences to be merged in here not require us to hold on to it.
+        var differences = [];
+        var baseEncodingName = null;
+        var encoding;
+        if (dict.has('Encoding')) {
+          encoding = dict.get('Encoding');
+          if (isDict(encoding)) {
+            baseEncodingName = encoding.get('BaseEncoding');
+            baseEncodingName = (isName(baseEncodingName) ?
+              baseEncodingName.name : null);
+            // Load the differences between the base and original
+            if (encoding.has('Differences')) {
+              var diffEncoding = encoding.get('Differences');
+              var index = 0;
+              for (var j = 0, jj = diffEncoding.length; j < jj; j++) {
+                var data = xref.fetchIfRef(diffEncoding[j]);
+                if (isNum(data)) {
+                  index = data;
+                } else if (isName(data)) {
+                  differences[index++] = data.name;
+                } else {
+                  throw new FormatError(
+                    `Invalid entry in 'Differences' array: ${data}`);
+                }
+              }
+            }
+          } else if (isName(encoding)) {
+            baseEncodingName = encoding.name;
+          } else {
+            throw new FormatError('Encoding is not a Name nor a Dict');
+          }
+          // According to table 114 if the encoding is a named encoding it must be
+          // one of these predefined encodings.
+          if ((baseEncodingName !== 'MacRomanEncoding' &&
+            baseEncodingName !== 'MacExpertEncoding' &&
+            baseEncodingName !== 'WinAnsiEncoding')) {
+            baseEncodingName = null;
+          }
         }
-      }
 
-      // Based on 9.6.6 of the spec the encoding can come from multiple places
-      // and depends on the font type. The base encoding and differences are
-      // read here, but the encoding that is actually used is chosen during
-      // glyph mapping in the font.
-      // TODO: Loading the built in encoding in the font would allow the
-      // differences to be merged in here not require us to hold on to it.
-      var differences = [];
-      var baseEncodingName = null;
-      var encoding;
-      if (dict.has('Encoding')) {
-        encoding = dict.get('Encoding');
-        if (isDict(encoding)) {
-          baseEncodingName = encoding.get('BaseEncoding');
-          baseEncodingName = (isName(baseEncodingName) ?
-                              baseEncodingName.name : null);
-          // Load the differences between the base and original
-          if (encoding.has('Differences')) {
-            var diffEncoding = encoding.get('Differences');
-            var index = 0;
-            for (var j = 0, jj = diffEncoding.length; j < jj; j++) {
-              var data = xref.fetchIfRef(diffEncoding[j]);
-              if (isNum(data)) {
-                index = data;
-              } else if (isName(data)) {
-                differences[index++] = data.name;
-              } else {
-                throw new FormatError(
-                  `Invalid entry in 'Differences' array: ${data}`);
+        if (baseEncodingName) {
+          properties.defaultEncoding = getEncoding(baseEncodingName).slice();
+        } else {
+          var isSymbolicFont = !!(properties.flags & FontFlags.Symbolic);
+          var isNonsymbolicFont = !!(properties.flags & FontFlags.Nonsymbolic);
+          // According to "Table 114" in section "9.6.6.1 General" (under
+          // "9.6.6 Character Encoding") of the PDF specification, a Nonsymbolic
+          // font should use the `StandardEncoding` if no encoding is specified.
+          encoding = StandardEncoding;
+          if (properties.type === 'TrueType' && !isNonsymbolicFont) {
+            encoding = WinAnsiEncoding;
+          }
+          // The Symbolic attribute can be misused for regular fonts
+          // Heuristic: we have to check if the font is a standard one also
+          if (isSymbolicFont) {
+            encoding = MacRomanEncoding;
+            if (!properties.file) {
+              if (/Symbol/i.test(properties.name)) {
+                encoding = SymbolSetEncoding;
+              } else if (/Dingbats/i.test(properties.name)) {
+                encoding = ZapfDingbatsEncoding;
               }
             }
           }
-        } else if (isName(encoding)) {
-          baseEncodingName = encoding.name;
-        } else {
-          throw new FormatError('Encoding is not a Name nor a Dict');
+          properties.defaultEncoding = encoding;
         }
-        // According to table 114 if the encoding is a named encoding it must be
-        // one of these predefined encodings.
-        if ((baseEncodingName !== 'MacRomanEncoding' &&
-             baseEncodingName !== 'MacExpertEncoding' &&
-             baseEncodingName !== 'WinAnsiEncoding')) {
-          baseEncodingName = null;
-        }
-      }
 
-      if (baseEncodingName) {
-        properties.defaultEncoding = getEncoding(baseEncodingName).slice();
-      } else {
-        var isSymbolicFont = !!(properties.flags & FontFlags.Symbolic);
-        var isNonsymbolicFont = !!(properties.flags & FontFlags.Nonsymbolic);
-        // According to "Table 114" in section "9.6.6.1 General" (under
-        // "9.6.6 Character Encoding") of the PDF specification, a Nonsymbolic
-        // font should use the `StandardEncoding` if no encoding is specified.
-        encoding = StandardEncoding;
-        if (properties.type === 'TrueType' && !isNonsymbolicFont) {
-          encoding = WinAnsiEncoding;
-        }
-        // The Symbolic attribute can be misused for regular fonts
-        // Heuristic: we have to check if the font is a standard one also
-        if (isSymbolicFont) {
-          encoding = MacRomanEncoding;
-          if (!properties.file) {
-            if (/Symbol/i.test(properties.name)) {
-              encoding = SymbolSetEncoding;
-            } else if (/Dingbats/i.test(properties.name)) {
-              encoding = ZapfDingbatsEncoding;
-            }
+        properties.differences = differences;
+        properties.baseEncodingName = baseEncodingName;
+        properties.hasEncoding = !!baseEncodingName || differences.length > 0;
+        properties.dict = dict;
+        return toUnicodePromise.then((toUnicode) => {
+          properties.toUnicode = toUnicode;
+          return this.buildToUnicode(properties);
+        }).then((toUnicode) => {
+          properties.toUnicode = toUnicode;
+          if (cidToGidBytes) {
+            properties.cidToGidMap = this.readCidToGidMap(cidToGidBytes,
+              toUnicode);
           }
-        }
-        properties.defaultEncoding = encoding;
-      }
-
-      properties.differences = differences;
-      properties.baseEncodingName = baseEncodingName;
-      properties.hasEncoding = !!baseEncodingName || differences.length > 0;
-      properties.dict = dict;
-      return toUnicodePromise.then((toUnicode) => {
-        properties.toUnicode = toUnicode;
-        return this.buildToUnicode(properties);
-      }).then((toUnicode) => {
-        properties.toUnicode = toUnicode;
-        if (cidToGidBytes) {
-          properties.cidToGidMap = this.readCidToGidMap(cidToGidBytes,
-                                                        toUnicode);
-        }
-        return properties;
-      });
-    },
+          return properties;
+        });
+      },
 
     /**
      * @returns {ToUnicodeMap}
@@ -2057,13 +2072,13 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       // descendant CIDFont uses the Adobe-GB1, Adobe-CNS1, Adobe-Japan1, or
       // Adobe-Korea1 character collection:
       if (properties.composite && (
-           (properties.cMap.builtInCMap &&
-            !(properties.cMap instanceof IdentityCMap)) ||
-           (properties.cidSystemInfo.registry === 'Adobe' &&
-             (properties.cidSystemInfo.ordering === 'GB1' ||
-              properties.cidSystemInfo.ordering === 'CNS1' ||
-              properties.cidSystemInfo.ordering === 'Japan1' ||
-              properties.cidSystemInfo.ordering === 'Korea1')))) {
+        (properties.cMap.builtInCMap &&
+          !(properties.cMap instanceof IdentityCMap)) ||
+        (properties.cidSystemInfo.registry === 'Adobe' &&
+          (properties.cidSystemInfo.ordering === 'GB1' ||
+            properties.cidSystemInfo.ordering === 'CNS1' ||
+            properties.cidSystemInfo.ordering === 'Japan1' ||
+            properties.cidSystemInfo.ordering === 'Korea1')))) {
         // Then:
         // a) Map the character code to a character identifier (CID) according
         // to the font’s CMap.
@@ -2085,7 +2100,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         }).then(function (ucs2CMap) {
           let cMap = properties.cMap;
           let toUnicode = [];
-          cMap.forEach(function(charcode, cid) {
+          cMap.forEach(function (charcode, cid) {
             if (cid > 0xffff) {
               throw new FormatError('Max size of CID is 65,535');
             }
@@ -2095,7 +2110,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
             if (ucs2) {
               toUnicode[charcode] =
                 String.fromCharCode((ucs2.charCodeAt(0) << 8) +
-                                    ucs2.charCodeAt(1));
+                  ucs2.charCodeAt(1));
             }
           });
           return new ToUnicodeMap(toUnicode);
@@ -2104,7 +2119,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
 
       // The viewer's choice, just use an identity map.
       return Promise.resolve(new IdentityToUnicodeMap(properties.firstChar,
-                                                      properties.lastChar));
+        properties.lastChar));
     },
 
     readToUnicode: function PartialEvaluator_readToUnicode(toUnicode) {
@@ -2133,7 +2148,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           // Convert UTF-16BE
           // NOTE: cmap can be a sparse array, so use forEach instead of for(;;)
           // to iterate over all keys.
-          cmap.forEach(function(charCode, token) {
+          cmap.forEach(function (charCode, token) {
             var str = [];
             for (var k = 0; k < token.length; k += 2) {
               var w1 = (token.charCodeAt(k) << 8) | token.charCodeAt(k + 1);
@@ -2170,7 +2185,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     extractWidths: function PartialEvaluator_extractWidths(dict, descriptor,
-                                                           properties) {
+      properties) {
       var xref = this.xref;
       var glyphsWidths = [];
       var defaultWidth = 0;
@@ -2243,7 +2258,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
             var metrics = this.getBaseFontMetrics(baseFontName.name);
 
             glyphsWidths = this.buildCharCodeToWidth(metrics.widths,
-                                                     properties);
+              properties);
             defaultWidth = metrics.defaultWidth;
           }
         }
@@ -2280,7 +2295,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       // Simulating descriptor flags attribute
       var fontNameWoStyle = baseFontName.split('-')[0];
       return (fontNameWoStyle in getSerifFonts()) ||
-              (fontNameWoStyle.search(/serif/gi) !== -1);
+        (fontNameWoStyle.search(/serif/gi) !== -1);
     },
 
     getBaseFontMetrics: function PartialEvaluator_getBaseFontMetrics(name) {
@@ -2317,24 +2332,24 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
 
     buildCharCodeToWidth:
-        function PartialEvaluator_bulildCharCodeToWidth(widthsByGlyphName,
-                                                        properties) {
-      var widths = Object.create(null);
-      var differences = properties.differences;
-      var encoding = properties.defaultEncoding;
-      for (var charCode = 0; charCode < 256; charCode++) {
-        if (charCode in differences &&
+      function PartialEvaluator_bulildCharCodeToWidth(widthsByGlyphName,
+        properties) {
+        var widths = Object.create(null);
+        var differences = properties.differences;
+        var encoding = properties.defaultEncoding;
+        for (var charCode = 0; charCode < 256; charCode++) {
+          if (charCode in differences &&
             widthsByGlyphName[differences[charCode]]) {
-          widths[charCode] = widthsByGlyphName[differences[charCode]];
-          continue;
+            widths[charCode] = widthsByGlyphName[differences[charCode]];
+            continue;
+          }
+          if (charCode in encoding && widthsByGlyphName[encoding[charCode]]) {
+            widths[charCode] = widthsByGlyphName[encoding[charCode]];
+            continue;
+          }
         }
-        if (charCode in encoding && widthsByGlyphName[encoding[charCode]]) {
-          widths[charCode] = widthsByGlyphName[encoding[charCode]];
-          continue;
-        }
-      }
-      return widths;
-    },
+        return widths;
+      },
 
     preEvaluateFont: function PartialEvaluator_preEvaluateFont(dict) {
       var baseDict = dict;
@@ -2406,7 +2421,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           uint8array = stream.buffer ?
             new Uint8Array(stream.buffer.buffer, 0, stream.bufferLength) :
             new Uint8Array(stream.bytes.buffer,
-                           stream.start, stream.end - stream.start);
+              stream.start, stream.end - stream.start);
           hash.update(uint8array);
 
         } else if (isName(toUnicode)) {
@@ -2465,7 +2480,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
             (this.isSerifFont(fontNameWoStyle) ? FontFlags.Serif : 0) |
             (metrics.monospace ? FontFlags.FixedPitch : 0) |
             (getSymbolsFonts()[fontNameWoStyle] ? FontFlags.Symbolic :
-                                                  FontFlags.Nonsymbolic);
+              FontFlags.Nonsymbolic);
 
           properties = {
             type,
@@ -2479,7 +2494,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           return this.extractDataStructures(dict, dict, properties).
             then((properties) => {
               properties.widths = this.buildCharCodeToWidth(metrics.widths,
-                                                            properties);
+                properties);
               return new Font(baseFontName, null, properties);
             });
         }
@@ -2508,11 +2523,11 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         var baseFontStr = baseFont && baseFont.name;
         if (fontNameStr !== baseFontStr) {
           info(`The FontDescriptor\'s FontName is "${fontNameStr}" but ` +
-               `should be the same as the Font\'s BaseFont "${baseFontStr}".`);
+            `should be the same as the Font\'s BaseFont "${baseFontStr}".`);
           // Workaround for cases where e.g. fontNameStr = 'Arial' and
           // baseFontStr = 'Arial,Bold' (needed when no font file is embedded).
           if (fontNameStr && baseFontStr &&
-              baseFontStr.startsWith(fontNameStr)) {
+            baseFontStr.startsWith(fontNameStr)) {
             fontName = baseFont;
           }
         }
@@ -2592,7 +2607,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
     },
   };
 
-  PartialEvaluator.buildFontPaths = function(font, glyphs, handler) {
+  PartialEvaluator.buildFontPaths = function (font, glyphs, handler) {
     function buildPath(fontChar) {
       if (font.renderer.hasBuiltPath(fontChar)) {
         return;
@@ -2701,7 +2716,7 @@ var TranslatedFont = (function TranslatedFontClosure() {
             // Add the dependencies to the parent operator list so they are
             // resolved before sub operator list is executed synchronously.
             parentOperatorList.addDependencies(operatorList.dependencies);
-          }).catch(function(reason) {
+          }).catch(function (reason) {
             warn(`Type3 font resource "${key}" is not available.`);
             var operatorList = new OperatorList();
             charProcOperatorList[key] = operatorList.getIR();
@@ -2777,34 +2792,34 @@ var TextState = (function TextStateClosure() {
       m[5] = m[1] * x + m[3] * y + m[5];
     },
     calcTextLineMatrixAdvance:
-        function TextState_calcTextLineMatrixAdvance(a, b, c, d, e, f) {
-      var font = this.font;
-      if (!font) {
-        return null;
-      }
-      var m = this.textLineMatrix;
-      if (!(a === m[0] && b === m[1] && c === m[2] && d === m[3])) {
-        return null;
-      }
-      var txDiff = e - m[4], tyDiff = f - m[5];
-      if ((font.vertical && txDiff !== 0) || (!font.vertical && tyDiff !== 0)) {
-        return null;
-      }
-      var tx, ty, denominator = a * d - b * c;
-      if (font.vertical) {
-        tx = -tyDiff * c / denominator;
-        ty = tyDiff * a / denominator;
-      } else {
-        tx = txDiff * d / denominator;
-        ty = -txDiff * b / denominator;
-      }
-      return { width: tx, height: ty, value: (font.vertical ? ty : tx), };
-    },
+      function TextState_calcTextLineMatrixAdvance(a, b, c, d, e, f) {
+        var font = this.font;
+        if (!font) {
+          return null;
+        }
+        var m = this.textLineMatrix;
+        if (!(a === m[0] && b === m[1] && c === m[2] && d === m[3])) {
+          return null;
+        }
+        var txDiff = e - m[4], tyDiff = f - m[5];
+        if ((font.vertical && txDiff !== 0) || (!font.vertical && tyDiff !== 0)) {
+          return null;
+        }
+        var tx, ty, denominator = a * d - b * c;
+        if (font.vertical) {
+          tx = -tyDiff * c / denominator;
+          ty = tyDiff * a / denominator;
+        } else {
+          tx = txDiff * d / denominator;
+          ty = -txDiff * b / denominator;
+        }
+        return { width: tx, height: ty, value: (font.vertical ? ty : tx), };
+      },
     calcRenderMatrix: function TextState_calcRendeMatrix(ctm) {
       // 9.4.4 Text Space Details
       var tsm = [this.fontSize * this.textHScale, 0,
-                0, this.fontSize,
-                0, this.textRise];
+        0, this.fontSize,
+        0, this.textRise];
       return Util.transform(ctm, Util.transform(this.textMatrix, tsm));
     },
     carriageReturn: function TextState_carriageReturn() {
@@ -2888,8 +2903,10 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
     t['Tz'] = { id: OPS.setHScale, numArgs: 1, variableArgs: false, };
     t['TL'] = { id: OPS.setLeading, numArgs: 1, variableArgs: false, };
     t['Tf'] = { id: OPS.setFont, numArgs: 2, variableArgs: false, };
-    t['Tr'] = { id: OPS.setTextRenderingMode, numArgs: 1,
-                variableArgs: false, };
+    t['Tr'] = {
+      id: OPS.setTextRenderingMode, numArgs: 1,
+      variableArgs: false,
+    };
     t['Ts'] = { id: OPS.setTextRise, numArgs: 1, variableArgs: false, };
     t['Td'] = { id: OPS.moveText, numArgs: 2, variableArgs: false, };
     t['TD'] = { id: OPS.setLeadingMoveText, numArgs: 2, variableArgs: false, };
@@ -2898,13 +2915,17 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
     t['Tj'] = { id: OPS.showText, numArgs: 1, variableArgs: false, };
     t['TJ'] = { id: OPS.showSpacedText, numArgs: 1, variableArgs: false, };
     t['\''] = { id: OPS.nextLineShowText, numArgs: 1, variableArgs: false, };
-    t['"'] = { id: OPS.nextLineSetSpacingShowText, numArgs: 3,
-               variableArgs: false, };
+    t['"'] = {
+      id: OPS.nextLineSetSpacingShowText, numArgs: 3,
+      variableArgs: false,
+    };
 
     // Type3 fonts
     t['d0'] = { id: OPS.setCharWidth, numArgs: 2, variableArgs: false, };
-    t['d1'] = { id: OPS.setCharWidthAndBounds, numArgs: 6,
-                variableArgs: false, };
+    t['d1'] = {
+      id: OPS.setCharWidthAndBounds, numArgs: 6,
+      variableArgs: false,
+    };
 
     // Color
     t['CS'] = { id: OPS.setStrokeColorSpace, numArgs: 1, variableArgs: false, };
@@ -2933,8 +2954,10 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
     t['MP'] = { id: OPS.markPoint, numArgs: 1, variableArgs: false, };
     t['DP'] = { id: OPS.markPointProps, numArgs: 2, variableArgs: false, };
     t['BMC'] = { id: OPS.beginMarkedContent, numArgs: 1, variableArgs: false, };
-    t['BDC'] = { id: OPS.beginMarkedContentProps, numArgs: 2,
-                 variableArgs: false, };
+    t['BDC'] = {
+      id: OPS.beginMarkedContentProps, numArgs: 2,
+      variableArgs: false,
+    };
     t['EMC'] = { id: OPS.endMarkedContent, numArgs: 0, variableArgs: false, };
 
     // Compatibility
@@ -3031,14 +3054,14 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
 
             if (argsLength < numArgs) {
               const partialMsg = `command ${cmd}: expected ${numArgs} args, ` +
-                                 `but received ${argsLength} args.`;
+                `but received ${argsLength} args.`;
 
               // Incomplete path operators, in particular, can result in fairly
               // chaotic rendering artifacts. Hence the following heuristics is
               // used to error, rather than just warn, once a number of invalid
               // path operators have been encountered (fixes bug1443140.pdf).
               if ((fn >= OPS.moveTo && fn <= OPS.endPath) && // Path operator
-                  ++this._numInvalidPathOPS > MAX_INVALID_PATH_OPS) {
+                ++this._numInvalidPathOPS > MAX_INVALID_PATH_OPS) {
                 throw new FormatError(`Invalid ${partialMsg}`);
               }
               // If we receive too few arguments, it's not possible to execute
@@ -3051,7 +3074,7 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
             }
           } else if (argsLength > numArgs) {
             info(`Command ${cmd}: expected [0, ${numArgs}] args, ` +
-                 `but received ${argsLength} args.`);
+              `but received ${argsLength} args.`);
           }
 
           // TODO figure out how to type-check vararg functions
@@ -3078,19 +3101,19 @@ var EvaluatorPreprocessor = (function EvaluatorPreprocessorClosure() {
     },
 
     preprocessCommand:
-        function EvaluatorPreprocessor_preprocessCommand(fn, args) {
-      switch (fn | 0) {
-        case OPS.save:
-          this.stateManager.save();
-          break;
-        case OPS.restore:
-          this.stateManager.restore();
-          break;
-        case OPS.transform:
-          this.stateManager.transform(args);
-          break;
-      }
-    },
+      function EvaluatorPreprocessor_preprocessCommand(fn, args) {
+        switch (fn | 0) {
+          case OPS.save:
+            this.stateManager.save();
+            break;
+          case OPS.restore:
+            this.stateManager.restore();
+            break;
+          case OPS.transform:
+            this.stateManager.transform(args);
+            break;
+        }
+      },
   };
   return EvaluatorPreprocessor;
 })();
