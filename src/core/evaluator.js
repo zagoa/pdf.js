@@ -1735,6 +1735,7 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         if (textContentItem.initialized) {
           return textContentItem;
         }
+        textContentItem.containSpace = false;
         var font = textState.font;
         if (!(font.loadedName in seenStyles)) {
           seenStyles[font.loadedName] = true;
@@ -1897,6 +1898,10 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           textState.translateTextMatrix(tx, ty);
 
           textChunk.str.push(glyphUnicode);
+
+          if (glyphUnicode === ' ') {
+            textChunk.containSpace = true;
+          }
         }
 
         if (!font.vertical) {
@@ -2124,6 +2129,9 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
               for (var j = 0, jj = items.length; j < jj; j++) {
                 if (typeof items[j] === "string") {
                   buildTextContentItem(items[j]);
+                  if (textContentItem.containSpace) {
+                    flushTextContentItem();
+                  }
                 } else if (isNum(items[j])) {
                   ensureTextContentItem();
 
@@ -2163,6 +2171,10 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
                     flushTextContentItem();
                   } else if (advance > 0) {
                     addFakeSpaces(advance, textContentItem.str);
+                  }
+
+                  if (textContentItem.containSpace) {
+                    flushTextContentItem();
                   }
                 }
               }
